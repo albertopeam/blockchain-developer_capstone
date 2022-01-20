@@ -7,17 +7,32 @@ import 'openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol';
 import "./Oraclize.sol";
 
 contract Ownable {
-    //  TODO's
-    //  1) create a private '_owner' variable of type address with a public getter function
-    //  2) create an internal constructor that sets the _owner var to the creater of the contract 
-    //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
-    //  4) fill out the transferOwnership function
-    //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
+    address private _owner;
+    event ChangedOwnership(address newOwner, address previousOwner);
 
-    function transferOwnership(address newOwner) public onlyOwner {
-        // TODO add functionality to transfer control of the contract to a newOwner.
-        // make sure the new owner is a real address
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "Owner verification failed");
+        _;
+    }
 
+    modifier notZeroAddress(address addr) {
+        require(addr != address(0), "Invalid address");
+        _;
+    }
+
+    constructor() public {
+        _owner = msg.sender;
+        emit ChangedOwnership(_owner, address(0));
+    }
+
+    function getOwner() public view returns (address) {
+        return _owner;
+    }
+
+    function transferOwnership(address newOwner) public onlyOwner notZeroAddress(newOwner) {
+        address previousOwner = _owner;
+        _owner = newOwner;
+        emit ChangedOwnership(_owner, previousOwner);
     }
 }
 
@@ -27,6 +42,9 @@ contract Ownable {
 //  3) create an internal constructor that sets the _paused variable to false
 //  4) create 'whenNotPaused' & 'paused' modifier that throws in the appropriate situation
 //  5) create a Paused & Unpaused event that emits the address that triggered the event
+contract Pausable is Ownable {
+
+}
 
 contract ERC165 {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
@@ -417,7 +435,8 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     
     // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
 
-    // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'
+    // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'. DONE, review when implementing
+    mapping (uint256 => string) private _tokenURIs;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
     /*
@@ -459,6 +478,11 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -takes in a 'to' address, tokenId, and tokenURI as parameters
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
+contract ERC721Mintable is ERC721Metadata {
+    //TODO: pending to cleanup constructor
+    constructor() public ERC721Metadata("real state token", "rst", "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") {
 
+    }
+}
 
 
