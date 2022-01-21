@@ -44,9 +44,42 @@ contract('ERC721Mintable', accounts => {
                 return event.newOwner === account_two && event.previousOwner === account_one;
             });
         })
-
-
     });  
+
+    describe('pausable', function () {
+        beforeEach(async function () { 
+            this.contract = await ERC721Mintable.new({from: account_one});
+        })
+
+        it('should not be paused after initialize', async function () { 
+            let result = await truffleAssert.createTransactionResult(this.contract, this.contract.transactionHash)
+            truffleAssert.eventEmitted(result, 'Unpaused', (event) => {
+                return event.addr === account_one;
+            });
+            assert.equal(await this.contract.isPaused(), false);
+        })
+
+        it('should not be able to be paused by other than owner', async function () { 
+            await truffleAssert.fails(
+                this.contract.pause(true, {from: account_two}),
+                "Owner verification failed"
+            );
+        })    
+
+        it('should be able to be paused/unpaused by the owner', async function () { 
+            let pauseTransaction = await this.contract.pause(true);
+            truffleAssert.eventEmitted(pauseTransaction, 'Paused', (event) => {
+                return event.addr === account_one;
+            });
+            assert.equal(await this.contract.isPaused(), true);
+
+            let unpauseTransaction = await this.contract.pause(false);
+            truffleAssert.eventEmitted(unpauseTransaction, 'Unpaused', (event) => {
+                return event.addr === account_one;
+            });
+            assert.equal(await this.contract.isPaused(), false);
+        }) 
+    });      
 
     describe('match erc721 spec', function () {
         beforeEach(async function () { 
