@@ -81,11 +81,27 @@ contract('ERC721Mintable', accounts => {
         }) 
     });      
 
+    describe('match erc165 spec', function () {
+        beforeEach(async function () { 
+            this.contract = await ERC721Mintable.new({from: account_one});
+        })
+
+        it('should comply erc165', async function () { 
+            let erc165Id = "0x01ffc9a7";
+            assert.equal(await this.contract.supportsInterface(erc165Id), true);
+        })
+    })
+
     describe('match erc721 spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
 
             // TODO: mint multiple tokens
+        })
+
+        it('should comply erc721', async function () { 
+            let erc721Id = "0x80ac58cd";
+            assert.equal(await this.contract.supportsInterface(erc721Id), true);
         })
 
         it('should return total supply', async function () { 
@@ -106,6 +122,28 @@ contract('ERC721Mintable', accounts => {
         })
     });
 
+    describe('match erc721 enumerable spec', function () {
+        beforeEach(async function () { 
+            this.contract = await ERC721Mintable.new({from: account_one});
+        })
+
+        it('should comply erc721 enumerable', async function () { 
+            let erc721EnumerableId = "0x780e9d63";
+            assert.equal(await this.contract.supportsInterface(erc721EnumerableId), true);
+        })
+    })
+
+    describe('match erc721 metadata spec', function () {
+        beforeEach(async function () { 
+            this.contract = await ERC721Mintable.new({from: account_one});
+        })
+
+        it('should comply erc721 metadata', async function () { 
+            let erc721MetadataId = "0x5b5e139f";
+            assert.equal(await this.contract.supportsInterface(erc721MetadataId), true);
+        })
+    })
+    
     describe('have ownership properties', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});

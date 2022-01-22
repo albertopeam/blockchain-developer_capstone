@@ -70,6 +70,9 @@ contract Pausable is Ownable {
     }
 }
 
+/// @title EIP-165: Standard Interface Detection
+/// @dev See https://eips.ethereum.org/EIPS/eip-165
+///  Note: the ERC-165 identifier for this interface is 0x01ffc9a7.
 contract ERC165 {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
@@ -106,6 +109,9 @@ contract ERC165 {
     }
 }
 
+/// @title ERC-721 Non-Fungible Token Standard
+/// @dev See https://eips.ethereum.org/EIPS/eip-721
+///  Note: the ERC-165 identifier for this interface is 0x80ac58cd.
 contract ERC721 is Pausable, ERC165 {
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
@@ -283,6 +289,9 @@ contract ERC721 is Pausable, ERC165 {
     }
 }
 
+/// @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
+/// @dev See https://eips.ethereum.org/EIPS/eip-721
+///  Note: the ERC-165 identifier for this interface is 0x780e9d63.
 contract ERC721Enumerable is ERC165, ERC721 {
     // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
@@ -455,6 +464,9 @@ contract ERC721Enumerable is ERC165, ERC721 {
     }
 }
 
+/// @title ERC-721 Non-Fungible Token Standard, optional metadata extension
+/// @dev See https://eips.ethereum.org/EIPS/eip-721
+///  Note: the ERC-165 identifier for this interface is 0x5b5e139f.
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     
     // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
