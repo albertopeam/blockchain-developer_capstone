@@ -159,11 +159,16 @@ contract ERC721 is Pausable, ERC165 {
         return _ownedTokensCount[owner].current();
     }
 
-    function ownerOf(uint256 tokenId) public view returns (address) {
-        // TODO return the owner of the given tokenId
+    /// @notice Find the owner of an NFT
+    /// @dev NFTs assigned to zero address are considered invalid, and queries
+    ///  about them do throw.
+    /// @param _tokenId The identifier for an NFT
+    /// @return The address of the owner of the NFT
+    function ownerOf(uint256 _tokenId) public view whenNotPaused notZeroAddress(_tokenOwner[_tokenId]) returns (address) {
+        return _tokenOwner[_tokenId];
     }
 
-//    @dev Approves another address to transfer the given token ID
+    // @dev Approves another address to transfer the given token ID
     function approve(address to, uint256 tokenId) public {
         
         // TODO require the given address to not be the owner of the tokenId

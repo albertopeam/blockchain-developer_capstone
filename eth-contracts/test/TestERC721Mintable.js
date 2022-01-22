@@ -6,6 +6,8 @@ contract('ERC721Mintable', accounts => {
     const zeroAddress = '0x0000000000000000000000000000000000000000';
     const account_one = accounts[0];
     const account_two = accounts[1];
+    const nftId = 0;
+    const nullNftId = 1;
 
     describe('ownable', function () {
         beforeEach(async function () { 
@@ -116,7 +118,20 @@ contract('ERC721Mintable', accounts => {
         })
 
         it('should get balanceOf for a non empty account', async function () { 
+            //TODO: 1 need to be replaced with the real balance of the account_one
             assert.equal(await this.contract.balanceOf(account_one), 1);
+        })
+
+        it('should get owner of token id', async function () { 
+            //TODO: needed to assign the nftId to account_one
+            assert.equal(await this.contract.ownerOf(nftId), account_one);
+        })
+
+        it('should fail getting the owner of a token id that has null owner', async function () { 
+            await truffleAssert.fails(
+                this.contract.ownerOf(nullNftId),
+                "Invalid address"
+            );
         })
 
         it('should return total supply', async function () { 
