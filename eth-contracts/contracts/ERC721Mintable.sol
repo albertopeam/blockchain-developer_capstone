@@ -155,7 +155,7 @@ contract ERC721 is Pausable, ERC165 {
     ///  function throws for queries about the zero address.
     /// @param owner An address for whom to query the balance
     /// @return The number of NFTs owned by `owner`, possibly zero
-    function balanceOf(address owner) public view whenNotPaused notZeroAddress(owner) returns (uint256) {
+    function balanceOf(address owner) public view notZeroAddress(owner) returns (uint256) {
         return _ownedTokensCount[owner].current();
     }
 
@@ -164,7 +164,7 @@ contract ERC721 is Pausable, ERC165 {
     ///  about them do throw.
     /// @param _tokenId The identifier for an NFT
     /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId) public view whenNotPaused notZeroAddress(_tokenOwner[_tokenId]) returns (address) {
+    function ownerOf(uint256 _tokenId) public view notZeroAddress(_tokenOwner[_tokenId]) returns (address) {
         return _tokenOwner[_tokenId];
     }
 
