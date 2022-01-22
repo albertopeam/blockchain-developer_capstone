@@ -104,6 +104,21 @@ contract('ERC721Mintable', accounts => {
             assert.equal(await this.contract.supportsInterface(erc721Id), true);
         })
 
+        it('should fail getting balanceOf of zero address', async function () { 
+            await truffleAssert.fails(
+                this.contract.balanceOf(zeroAddress),
+                "Invalid address"
+            );
+        })
+
+        it('should get balanceOf of zero for an empty account', async function () { 
+            assert.equal(await this.contract.balanceOf(account_two), 0);
+        })
+
+        it('should get balanceOf for a non empty account', async function () { 
+            assert.equal(await this.contract.balanceOf(account_one), 1);
+        })
+
         it('should return total supply', async function () { 
             
         })

@@ -150,9 +150,13 @@ contract ERC721 is Pausable, ERC165 {
         _registerInterface(_INTERFACE_ID_ERC721);
     }
 
-    function balanceOf(address owner) public view returns (uint256) {
-        // TODO return the token balance of given address
-        // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
+    /// @notice Count all NFTs assigned to an owner
+    /// @dev NFTs assigned to the zero address are considered invalid, and this
+    ///  function throws for queries about the zero address.
+    /// @param owner An address for whom to query the balance
+    /// @return The number of NFTs owned by `owner`, possibly zero
+    function balanceOf(address owner) public view whenNotPaused notZeroAddress(owner) returns (uint256) {
+        return _ownedTokensCount[owner].current();
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
