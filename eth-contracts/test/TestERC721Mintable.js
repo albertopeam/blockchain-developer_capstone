@@ -7,9 +7,15 @@ contract('ERC721Mintable', accounts => {
     const account_one = accounts[0];
     const account_two = accounts[1];
     const nftId = 0;
-    const nullNftId = 1;
+    const nftId1 = 1;
+    const nftId2 = 2;
+    const nullNftId = 99;
+    const notMintedNftId = 100;
+    const baseTokenUri = "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
+    const tokenName = "real state token";
+    const tokenSymbol = "rst";
 
-    describe('ownable', function () {
+    describe('ownable spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
         })
@@ -48,7 +54,7 @@ contract('ERC721Mintable', accounts => {
         })
     });  
 
-    describe('pausable', function () {
+    describe('pausable spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
         })
@@ -83,7 +89,7 @@ contract('ERC721Mintable', accounts => {
         }) 
     });      
 
-    describe('match erc165 spec', function () {
+    describe('erc165 spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
         })
@@ -94,11 +100,49 @@ contract('ERC721Mintable', accounts => {
         })
     })
 
-    describe('match erc721 spec', function () {
+    describe('mint spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
+        })
 
-            // TODO: mint multiple tokens
+        it('should fail when minting an address that is not the contract owner', async function () { 
+            await truffleAssert.fails(
+                this.contract.mint(account_two, notMintedNftId, {from: account_two}),
+                "Owner verification failed"
+            );
+        })
+
+        it('should create a new nft for the provided address and identified with the supplied token id', async function () {
+            let transaction = await this.contract.mint(account_two, nftId);
+
+            assert.equal(await this.contract.ownerOf(nftId), account_two);
+            assert.equal(await this.contract.balanceOf(account_two), 1);
+            truffleAssert.eventEmitted(transaction, 'Transfer', (event) => {
+                return event.from == zeroAddress && event.to == account_two && event.tokenId == nftId;
+            });
+        })
+
+        it('should not create a new nft if it already exists', async function () {
+            await this.contract.mint(account_two, nftId);
+
+            await truffleAssert.fails(
+                this.contract.mint(account_two, nftId),
+                "Can't mint a token that already exists"
+            );
+        })  
+
+        it('should not create a new nft if the owner is invalid', async function () {
+            await truffleAssert.fails(
+                this.contract.mint(zeroAddress, nftId1),
+                "Invalid address"
+            );
+        })  
+    });
+
+    describe('erc721 spec', function () {
+        beforeEach(async function () { 
+            this.contract = await ERC721Mintable.new({from: account_one});
+            await this.contract.mint(account_two, nftId);
         })
 
         it('should comply erc721', async function () { 
@@ -114,17 +158,15 @@ contract('ERC721Mintable', accounts => {
         })
 
         it('should get balanceOf of zero for an empty account', async function () { 
-            assert.equal(await this.contract.balanceOf(account_two), 0);
+            assert.equal(await this.contract.balanceOf(account_one), 0);
         })
 
         it('should get balanceOf for a non empty account', async function () { 
-            //TODO: 1 need to be replaced with the real balance of the account_one
-            assert.equal(await this.contract.balanceOf(account_one), 1);
+            assert.equal(await this.contract.balanceOf(account_two), 1);
         })
 
         it('should get owner of token id', async function () { 
-            //TODO: needed to assign the nftId to account_one
-            assert.equal(await this.contract.ownerOf(nftId), account_one);
+            assert.equal(await this.contract.ownerOf(nftId), account_two);
         })
 
         it('should fail getting the owner of a token id that has null owner', async function () { 
@@ -152,7 +194,7 @@ contract('ERC721Mintable', accounts => {
         })
     });
 
-    describe('match erc721 enumerable spec', function () {
+    describe('erc721 enumerable spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
         })
@@ -163,7 +205,7 @@ contract('ERC721Mintable', accounts => {
         })
     })
 
-    describe('match erc721 metadata spec', function () {
+    describe('erc721 metadata spec', function () {
         beforeEach(async function () { 
             this.contract = await ERC721Mintable.new({from: account_one});
         })
@@ -172,19 +214,14 @@ contract('ERC721Mintable', accounts => {
             let erc721MetadataId = "0x5b5e139f";
             assert.equal(await this.contract.supportsInterface(erc721MetadataId), true);
         })
-    })
-    
-    describe('have ownership properties', function () {
-        beforeEach(async function () { 
-            this.contract = await ERC721Mintable.new({from: account_one});
-        })
 
-        it('should fail when minting when address is not contract owner', async function () { 
-            
-        })
+        it('should comply erc721 funtions', async function () {
+            await this.contract.mint(account_two, nftId);
 
-        it('should return contract owner', async function () { 
+            assert.equal(await this.contract.name(), tokenName);
+            assert.equal(await this.contract.symbol(), tokenSymbol);
+            assert.equal(await this.contract.baseTokenURI(), baseTokenUri);
+            assert.equal(await this.contract.tokenURI(nftId), `${baseTokenUri}${nftId}`);
         })
-
-    });      
+    })      
 })

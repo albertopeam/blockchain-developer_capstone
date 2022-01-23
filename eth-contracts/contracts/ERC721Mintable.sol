@@ -60,8 +60,8 @@ contract Pausable is Ownable {
         return _paused;
     }
 
-    function pause(bool pause) onlyOwner public {
-        _paused = pause;
+    function pause(bool _pause) onlyOwner public {
+        _paused = _pause;
         if (_paused) {
             emit Paused(msg.sender);
         } else {
@@ -244,15 +244,12 @@ contract ERC721 is Pausable, ERC165 {
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
-    // @dev Internal function to mint a new token
-    // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
-    function _mint(address to, uint256 tokenId) internal {
-
-        // TODO revert if given tokenId already exists or given address is invalid
-  
-        // TODO mint tokenId to given address & increase token count of owner
-
-        // TODO emit Transfer event
+    // @dev Internal function to mint a new token    
+    function _mint(address to, uint256 tokenId) notZeroAddress(to) internal {        
+        require(!_exists(tokenId), "Can't mint a token that already exists");
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to].increment();
+        emit Transfer(address(0x0), to, tokenId);        
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -477,10 +474,10 @@ contract ERC721Enumerable is ERC165, ERC721 {
 /// @dev See https://eips.ethereum.org/EIPS/eip-721
 ///  Note: the ERC-165 identifier for this interface is 0x5b5e139f.
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
-    
-    // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
 
-    // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'. DONE, review when implementing
+    string private _name;
+    string private _symbol;
+    string private _baseTokenURI;
     mapping (uint256 => string) private _tokenURIs;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
@@ -491,42 +488,54 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
      *     bytes4(keccak256('tokenURI(uint256)'))
      */
 
-
     constructor (string memory name, string memory symbol, string memory baseTokenURI) public {
-        // TODO: set instance var values
-
+        _name = name;
+        _symbol = symbol;
+        _baseTokenURI = baseTokenURI;
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
+    
+    /// @notice A descriptive name for a collection of NFTs in this contract
+    function name() external view returns (string memory) {
+        return _name;
+    }
 
-    // TODO: create external getter functions for name, symbol, and baseTokenURI
+    /// @notice An abbreviated name for NFTs in this contract
+    function symbol() external view returns (string memory) {
+        return _symbol;
+    }
 
+    /// @notice The base URI where this NFTs are stored
+    function baseTokenURI() external view returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    /// @notice A distinct Uniform Resource Identifier (URI) for a given asset.
+    /// @dev Throws if `tokenId` is not a valid NFT. URIs are defined in RFC
+    ///  3986. The URI may point to a JSON file that conforms to the "ERC721
+    ///  Metadata JSON Schema".
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId));
+        require(_exists(tokenId), "Token doesn't exist");
         return _tokenURIs[tokenId];
     }
 
-
-    // TODO: Create an internal function to set the tokenURI of a specified tokenId
-    // It should be the _baseTokenURI + the tokenId in string form
-    // TIP #1: use strConcat() from the imported oraclizeAPI lib to set the complete token URI
-    // TIP #2: you can also use uint2str() to convert a uint to a string
-        // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
-    // require the token exists before setting
-
+    /// @notice Sets a distinct Uniform Resource Identifier (URI) for a given asset.
+    /// @dev Throws if `tokenId` is not a valid NFT.
+    function setTokenURI(uint256 tokenId) internal {
+        require(_exists(tokenId), "Token doesn't exist");
+        string memory tokenIdString = uint2str(tokenId);
+        string memory uri = strConcat(_baseTokenURI, tokenIdString);
+        _tokenURIs[tokenId] = uri;
+    }
 }
 
-//  TODO's: Create CustomERC721Token contract that inherits from the ERC721Metadata contract. You can name this contract as you please
-//  1) Pass in appropriate values for the inherited ERC721Metadata contract
-//      - make the base token uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
-//  2) create a public mint() that does the following:
-//      -can only be executed by the contract owner
-//      -takes in a 'to' address, tokenId, and tokenURI as parameters
-//      -returns a true boolean upon completion of the function
-//      -calls the superclass mint and setTokenURI functions
 contract ERC721Mintable is ERC721Metadata {
-    //TODO: pending to cleanup constructor
-    constructor() public ERC721Metadata("real state token", "rst", "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") {
+    constructor() public ERC721Metadata("real state token", "rst", "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/") {}
 
+    function mint(address _to, uint256 _tokenId) whenNotPaused onlyOwner public returns(bool) {
+        super._mint(_to, _tokenId);
+        super.setTokenURI(_tokenId);
+        return true;
     }
 }
 
