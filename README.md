@@ -16,4 +16,6 @@ The capstone will build upon the knowledge you have gained in the course in orde
 ## Setup
 
 * start a local eth node using ganache or ganache cli: `ganache-cli --port=8545`
-* run the tests: `truffle test`
+* run the tests:
+  * `cd eth-contracts`
+  * `truffle test`

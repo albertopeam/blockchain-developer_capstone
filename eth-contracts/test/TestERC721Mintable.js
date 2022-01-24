@@ -176,16 +176,44 @@ contract('ERC721Mintable', accounts => {
             );
         })
 
+        it('should not be able to approve for an address that already is the owner', async function () { 
+            await truffleAssert.fails(
+                this.contract.approve(account_two, nftId, {from: account_two}),
+                "Owner can't approve itself"
+            );  
+        })
+
+        it('should not be able to approve if it was invoked from other than the owner or an authorized operator', async function () { 
+            await truffleAssert.fails(
+                this.contract.approve(account_one, nftId, {from: account_one}),
+                "Sender address is not the owner or approved address is not an authorized operator"
+            );  
+        })
+
+        it('should be able to approve other account if it was invoked by owner', async function () {     
+            let transaction = await this.contract.approve(account_one, nftId, {from: account_two});
+            truffleAssert.eventEmitted(transaction, 'Approval', (event) => {
+                return event.owner == account_two && event.approved == account_one && event.tokenId == nftId;
+            });
+        })
+
+        it('should not able to get approved address for a non existing nft', async function () { 
+            await truffleAssert.fails(
+                this.contract.getApproved(notMintedNftId),
+                "TokenId doesn't represent an NFT"
+            );
+        })  
+
+        it('should able to get approved address for a existing nft', async function () { 
+            await this.contract.approve(account_one, nftId, {from: account_two});
+            assert.equal(await this.contract.getApproved(nftId), account_one);
+        }) 
+
         it('should return total supply', async function () { 
             
         })
 
         it('should get token balance', async function () { 
-            
-        })
-
-        // token uri should be complete i.e: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1
-        it('should return token uri', async function () { 
             
         })
 

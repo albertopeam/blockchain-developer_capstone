@@ -145,6 +145,11 @@ contract ERC721 is Pausable, ERC165 {
 
     bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
 
+    modifier validNft(uint256 _tokenId) {
+        require(_tokenOwner[_tokenId] != address(0), "TokenId doesn't represent an NFT");
+        _;
+    }
+
     constructor () public {
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
@@ -168,21 +173,27 @@ contract ERC721 is Pausable, ERC165 {
         return _tokenOwner[_tokenId];
     }
 
-    // @dev Approves another address to transfer the given token ID
-    function approve(address to, uint256 tokenId) public {
-        
-        // TODO require the given address to not be the owner of the tokenId
-
-        // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
-
-        // TODO add 'to' address to token approvals
-
-        // TODO emit Approval Event
-
+    /// @notice Change or reaffirm the approved address for an NFT
+    /// @dev The zero address indicates there is no approved address.
+    ///  Throws unless `msg.sender` is the current NFT owner, or an authorized
+    ///  operator of the current owner.
+    /// @param _approved The new approved NFT controller
+    /// @param _tokenId The NFT to approve
+    function approve(address _approved, uint256 _tokenId) external {
+        address tokenOwnerAddress = ownerOf(_tokenId);
+        require (tokenOwnerAddress != _approved, "Owner can't approve itself");       
+        require (tokenOwnerAddress == msg.sender || isApprovedForAll(tokenOwnerAddress, _approved), 
+                "Sender address is not the owner or approved address is not an authorized operator");
+        _tokenApprovals[_tokenId] = _approved;
+        emit Approval(tokenOwnerAddress, _approved, _tokenId);
     }
 
-    function getApproved(uint256 tokenId) public view returns (address) {
-        // TODO return token approval if it exists
+    /// @notice Get the approved address for a single NFT
+    /// @dev Throws if `_tokenId` is not a valid NFT.
+    /// @param _tokenId The NFT to find the approved address for
+    /// @return The approved address for this NFT, or the zero address if there is none
+    function getApproved(uint256 _tokenId) public view validNft(_tokenId) returns (address) {
+        return _tokenApprovals[_tokenId];
     }
 
     /**
