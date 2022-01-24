@@ -169,7 +169,7 @@ contract ERC721 is Pausable, ERC165 {
     ///  about them do throw.
     /// @param _tokenId The identifier for an NFT
     /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId) public view notZeroAddress(_tokenOwner[_tokenId]) returns (address) {
+    function ownerOf(uint256 _tokenId) public view validNft(_tokenId) returns (address) {
         return _tokenOwner[_tokenId];
     }
 
@@ -179,7 +179,7 @@ contract ERC721 is Pausable, ERC165 {
     ///  operator of the current owner.
     /// @param _approved The new approved NFT controller
     /// @param _tokenId The NFT to approve
-    function approve(address _approved, uint256 _tokenId) external {
+    function approve(address _approved, uint256 _tokenId) whenNotPaused external {
         address tokenOwnerAddress = ownerOf(_tokenId);
         require (tokenOwnerAddress != _approved, "Owner can't approve itself");       
         require (tokenOwnerAddress == msg.sender || isApprovedForAll(tokenOwnerAddress, _approved), 

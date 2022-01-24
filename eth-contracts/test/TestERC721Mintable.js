@@ -169,10 +169,10 @@ contract('ERC721Mintable', accounts => {
             assert.equal(await this.contract.ownerOf(nftId), account_two);
         })
 
-        it('should fail getting the owner of a token id that has null owner', async function () { 
+        it('should fail getting the owner of a token id that doesnt exist', async function () { 
             await truffleAssert.fails(
                 this.contract.ownerOf(nullNftId),
-                "Invalid address"
+                "TokenId doesn't represent an NFT"
             );
         })
 
