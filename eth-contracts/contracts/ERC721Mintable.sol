@@ -228,8 +228,7 @@ contract ERC721 is Pausable, ERC165 {
     /// @param _from The current owner of the NFT
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
-    function transferFrom(address _from, address _to, uint256 _tokenId) whenNotPaused public {
-        require(_isApprovedOrOwner(msg.sender, _tokenId));
+    function transferFrom(address _from, address _to, uint256 _tokenId) whenNotPaused public {        
         _transferFrom(_from, _to, _tokenId);
     }
 
@@ -290,19 +289,14 @@ contract ERC721 is Pausable, ERC165 {
         emit Transfer(address(0x0), to, tokenId);        
     }
 
-    // @dev Internal function to transfer ownership of a given token ID to another address.
-    // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
-    function _transferFrom(address from, address to, uint256 tokenId) internal {
-
-        // TODO: require from address is the owner of the given token
-
-        // TODO: require token is being transfered to valid address
-        
-        // TODO: clear approval
-
-        // TODO: update token counts & transfer ownership of the token ID 
-
-        // TODO: emit correct event
+    // @dev Internal function to transfer ownership of a given token ID to another address.    
+    function _transferFrom(address from, address to, uint256 tokenId) notZeroAddress(to) validNft(tokenId) internal {        
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Sender is not the owner or is not approved to make transfers");
+        _clearApproval(tokenId);
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[from].decrement();
+        _ownedTokensCount[to].increment();
+        emit Transfer(from, to, tokenId);
     }
 
     /**

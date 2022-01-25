@@ -6,6 +6,7 @@ contract('ERC721Mintable', accounts => {
     const zeroAddress = '0x0000000000000000000000000000000000000000';
     const account_one = accounts[0];
     const account_two = accounts[1];
+    const account_three = accounts[2];
     const nftId = 0;
     const nftId1 = 1;
     const nftId2 = 2;
@@ -21,7 +22,8 @@ contract('ERC721Mintable', accounts => {
         })
 
         it('should emit when initialized', async function () { 
-            let result = await truffleAssert.createTransactionResult(this.contract, this.contract.transactionHash)
+            let result = await truffleAssert.createTransactionResult(this.contract, this.contract.transactionHash);
+            
             truffleAssert.eventEmitted(result, 'ChangedOwnership', (event) => {
                 return event.newOwner === account_one && event.previousOwner === zeroAddress;
             });
@@ -29,6 +31,7 @@ contract('ERC721Mintable', accounts => {
 
         it('should return contract owner', async function () { 
             let owner = await this.contract.getOwner();
+
             assert.equal(owner, account_one);
         })
 
@@ -48,6 +51,7 @@ contract('ERC721Mintable', accounts => {
 
         it('only owner can change ownership', async function () { 
             let transaction = await this.contract.transferOwnership(account_two, {from: account_one});
+
             truffleAssert.eventEmitted(transaction, 'ChangedOwnership', (event) => {
                 return event.newOwner === account_two && event.previousOwner === account_one;
             });
@@ -60,7 +64,8 @@ contract('ERC721Mintable', accounts => {
         })
 
         it('should not be paused after initialize', async function () { 
-            let result = await truffleAssert.createTransactionResult(this.contract, this.contract.transactionHash)
+            let result = await truffleAssert.createTransactionResult(this.contract, this.contract.transactionHash);
+
             truffleAssert.eventEmitted(result, 'Unpaused', (event) => {
                 return event.addr === account_one;
             });
@@ -192,6 +197,7 @@ contract('ERC721Mintable', accounts => {
 
         it('should be able to approve other account if it was invoked by owner', async function () {     
             let transaction = await this.contract.approve(account_one, nftId, {from: account_two});
+
             truffleAssert.eventEmitted(transaction, 'Approval', (event) => {
                 return event.owner == account_two && event.approved == account_one && event.tokenId == nftId;
             });
@@ -206,18 +212,56 @@ contract('ERC721Mintable', accounts => {
 
         it('should able to get approved address for a existing nft', async function () { 
             await this.contract.approve(account_one, nftId, {from: account_two});
+
             assert.equal(await this.contract.getApproved(nftId), account_one);
         }) 
+
+        it('should not able to transfer a token from other than the owner', async function () { 
+            await truffleAssert.fails(
+                this.contract.transferFrom(account_one, account_two, nftId),
+                "Sender is not the owner or is not approved to make transfers"
+            );
+        })
+
+
+        it('should not able to transfer a token to zero address', async function () { 
+            await truffleAssert.fails(
+                this.contract.transferFrom(account_two, zeroAddress, nftId),
+                "Invalid address"
+            );
+        })
+
+        it('should not able to transfer a token to zero address', async function () { 
+            await truffleAssert.fails(
+                this.contract.transferFrom(account_two, account_one, nullNftId),
+                "TokenId doesn't represent an NFT"
+            );
+        })
+
+        it('should be able to transfer a token to the owner to another address', async function () { 
+            let transaction = await this.contract.transferFrom(account_two, account_one, nftId, {from: account_two});
+
+            truffleAssert.eventEmitted(transaction, 'Transfer', (event) => {
+                return event.from == account_two && event.to == account_one && event.tokenId == nftId;
+            });            
+            assert.equal(await this.contract.ownerOf(nftId), account_one);
+            assert.equal(await this.contract.balanceOf(account_one), 1);
+            assert.equal(await this.contract.balanceOf(account_two), 0);            
+        })
+
+        it('should be able to transfer a token and clear approvals', async function () { 
+            await this.contract.approve(account_three, nftId, {from: account_two});
+
+            await this.contract.transferFrom(account_two, account_one, nftId, {from: account_two});
+
+            assert.equal(await this.contract.getApproved(nftId), zeroAddress);
+        })        
 
         it('should return total supply', async function () { 
             
         })
 
         it('should get token balance', async function () { 
-            
-        })
-
-        it('should transfer token from one owner to another', async function () { 
             
         })
     });
