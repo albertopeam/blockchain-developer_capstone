@@ -16,6 +16,15 @@ The capstone will build upon the knowledge you have gained in the course in orde
 ## Setup
 
 * start a local eth node using ganache or ganache cli: `ganache-cli --port=8545`
+* generate verifier
+  * `docker run -v <local_linked_dir>:/home/zokrates/code -ti zokrates/zokrates /bin/bash`
+  * `cd code`
+  * `zokrates compile -i square.code`
+  * `zokrates setup`
+  * `zokrates compute-witness -a 3 9`
+  * `zokrates generate-proof`
+  * `zokrates export-verifier`
+
 * run the tests:
   * `cd eth-contracts`
   * `truffle test`
