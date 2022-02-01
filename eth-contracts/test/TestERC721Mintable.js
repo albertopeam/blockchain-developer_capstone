@@ -255,14 +255,6 @@ contract('ERC721Mintable', accounts => {
             await this.contract.transferFrom(account_two, account_one, nftId, {from: account_two});
 
             assert.equal(await this.contract.getApproved(nftId), zeroAddress);
-        })        
-
-        it('should return total supply', async function () { 
-            
-        })
-
-        it('should get token balance', async function () { 
-            
         })
     });
 
