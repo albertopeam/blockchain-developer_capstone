@@ -71,13 +71,13 @@ The capstone will build upon the knowledge you have gained in the course in orde
 ## Deployment
 
 * [Deployer account](https://rinkeby.etherscan.io/address/0x54Baa4D0f4f18fb8aCa8Bb5f814d5B97Dd22Bfe5) `0x54Baa4D0f4f18fb8aCa8Bb5f814d5B97Dd22Bfe5`
-* [SolnSquareVerifier address]([0x1Faa715b05f01D6768f61B7BA5A91cD1C20481BD](https://rinkeby.etherscan.io/address/0x1Faa715b05f01D6768f61B7BA5A91cD1C20481BD)) `0x1Faa715b05f01D6768f61B7BA5A91cD1C20481BD`
-* [SquareVerifier address]([0x58F06f0280117a0384B91b00a9b97537807117D3](https://rinkeby.etherscan.io/address/0x58F06f0280117a0384B91b00a9b97537807117D3)) `0x58F06f0280117a0384B91b00a9b97537807117D3`
+* [SolnSquareVerifier address](https://rinkeby.etherscan.io/address/0x1Faa715b05f01D6768f61B7BA5A91cD1C20481BD)`0x1Faa715b05f01D6768f61B7BA5A91cD1C20481BD`
+* [SquareVerifier address](https://rinkeby.etherscan.io/address/0x58F06f0280117a0384B91b00a9b97537807117D3) `0x58F06f0280117a0384B91b00a9b97537807117D3`
 
 ## Tests
 
 * [Contract ABI](https://github.com/albertopeam/blockchain-developer_capstone/blob/master/ABI.json)
-* Transactions minted using [myetherwallet](https://www.myetherwallet.com/)
+* Transactions manually minted using [myetherwallet](https://www.myetherwallet.com/)
   * [transaction 0](https://rinkeby.etherscan.io/tx/0xa69c0d2cf3227436593760ef1e4ecc6dfc4cefb9bfe1679548b53bd23caedaa2)
   * [transaction 1](https://rinkeby.etherscan.io/tx/0xafe113d9108365917c902da1af096e5149fbc1f181ad591672f7f61a4232e7a2)
   * [transaction 2](https://rinkeby.etherscan.io/tx/0x68f110871b0191dde2ed96b62724e797eb2b5eea2ba1f83f9c055037a58d059d)
